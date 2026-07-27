@@ -1,0 +1,570 @@
+/* ─── Base ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+
+.admin-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  min-height: 100vh;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  position: relative;
+}
+
+/* Background image with overlay */
+.admin-dashboard::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('https://i.postimg.cc/Jzqp6885/modern-pink-and-gold-luxury-background-abstract-beauty-wallpaper-vector.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: -2;
+}
+
+/* Semi-transparent overlay to keep content readable */
+.admin-dashboard::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 245, 248, 0.82);
+  z-index: -1;
+}
+
+/* Loading */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #b45309;
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #fbc4d0;
+  border-top-color: #d4af37;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Header ─────────────────────────────────────────────────────────── */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(251, 196, 208, 0.6);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.1);
+}
+
+.header-left,
+.header-right { flex: 1; }
+.header-center { flex: 0 1 auto; text-align: center; }
+
+.dashboard-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #d4af37, #f59e0b, #c9956e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.back-home {
+  background: rgba(255, 240, 245, 0.9);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  text-decoration: none;
+  color: #b45309;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  border: 1px solid #fbc4d0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.back-home:hover {
+  background: #ffe4ed;
+  transform: translateX(-2px);
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  float: right;
+  transition: opacity 0.2s;
+}
+.logout-btn:hover { opacity: 0.85; }
+
+/* ─── Stats ──────────────────────────────────────────────────────────── */
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  text-align: center;
+  border: 1px solid rgba(255, 224, 232, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: linear-gradient(90deg, #d4af37, #f9a8c1);
+}
+.stat-card.clickable { cursor: pointer; }
+.stat-card.clickable:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px rgba(212, 175, 55, 0.2);
+  border-color: #f9a8c1;
+}
+
+.stat-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.stat-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b45309;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.stat-card p {
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #d4af37, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+  line-height: 1;
+}
+.click-hint {
+  display: block;
+  font-size: 0.7rem;
+  color: #d4a373;
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+/* ─── Management Sections ────────────────────────────────────────────── */
+.management-section {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 224, 232, 0.8);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.section-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #b45309;
+  margin: 0;
+}
+
+/* Tab buttons */
+.tab-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+.tab-btn {
+  padding: 6px 18px;
+  border-radius: 2rem;
+  border: 1.5px solid #fbc4d0;
+  background: white;
+  color: #b45309;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, #d4af37, #f59e0b);
+  color: white;
+  border-color: transparent;
+}
+.tab-btn:hover:not(.active) {
+  background: #fff0f5;
+}
+
+.badge {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.badge.green { background: #28a745; }
+
+.empty-msg {
+  text-align: center;
+  color: #888;
+  padding: 1.5rem;
+  font-style: italic;
+}
+
+/* ─── Table ──────────────────────────────────────────────────────────── */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0e8f0;
+}
+.admin-table th {
+  background: rgba(248, 249, 250, 0.8);
+  font-weight: 600;
+  color: #b45309;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.admin-table tr:hover td { background: rgba(255, 240, 245, 0.5); }
+
+/* Action buttons inline */
+.action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.approve-btn {
+  background: linear-gradient(135deg, #28a745, #218838);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.approve-btn:hover { opacity: 0.85; }
+
+.revoke-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.revoke-btn:hover { opacity: 0.85; }
+
+.delete-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.delete-btn:hover { opacity: 0.85; }
+
+/* ─── Chart ──────────────────────────────────────────────────────────── */
+.chart-section {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 224, 232, 0.8);
+}
+.chart-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #b45309;
+  margin-bottom: 1.25rem;
+}
+
+/* ─── Calendar ───────────────────────────────────────────────────────── */
+.calendar-section {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 224, 232, 0.8);
+}
+.calendar-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #b45309;
+  margin-bottom: 1.25rem;
+}
+
+.admin-calendar-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.admin-calendar-container .react-calendar {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+.react-calendar__navigation button {
+  color: #b45309;
+  font-weight: 600;
+}
+.react-calendar__tile--active {
+  background: linear-gradient(135deg, #d4af37, #f59e0b) !important;
+  color: white !important;
+  border-radius: 0.5rem;
+}
+.react-calendar__tile:hover {
+  background: #fff0f5 !important;
+  border-radius: 0.5rem;
+}
+
+.booked-date {
+  background: rgba(212, 175, 55, 0.25) !important;
+  color: #b45309 !important;
+  font-weight: 700;
+  border-radius: 50% !important;
+  position: relative;
+}
+.booked-date::after {
+  content: '•';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #d4af37;
+  font-size: 10px;
+}
+
+/* Bookings side panel */
+.bookings-on-date {
+  flex: 1;
+  min-width: 260px;
+  background: rgba(255, 248, 240, 0.9);
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid #fbc4d0;
+  min-height: 200px;
+}
+.bookings-on-date h4 {
+  color: #b45309;
+  margin-bottom: 1rem;
+  font-family: 'Playfair Display', serif;
+  border-bottom: 1px solid #fbc4d0;
+  padding-bottom: 0.5rem;
+}
+.bookings-on-date ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.bookings-on-date li {
+  background: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid #d4af37;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #555;
+}
+.bookings-on-date li strong { color: #b45309; font-size: 0.95rem; }
+.bookings-on-date li span { display: flex; align-items: center; gap: 0.3rem; }
+
+.no-bookings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: #bbb;
+  gap: 0.5rem;
+}
+.no-bookings span { font-size: 2rem; }
+
+/* ─── Modals ─────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+.modal-content {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  width: 90%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  border: 1px solid #fbc4d0;
+}
+.modal-content.wide-modal { max-width: 900px; }
+
+.modal-content h3 {
+  font-family: 'Playfair Display', serif;
+  color: #b45309;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #fbc4d0;
+  padding-bottom: 0.75rem;
+}
+
+/* Customer / Vendor side-by-side layout */
+.customer-layout {
+  display: flex;
+  gap: 1.5rem;
+  max-height: 55vh;
+  overflow: hidden;
+}
+.customer-table { flex: 2; overflow-y: auto; }
+
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.clickable-row:hover td { background: #fff0f5 !important; }
+.selected-row td { background: rgba(212, 175, 55, 0.1) !important; }
+
+.vendor-detail-panel {
+  flex: 1;
+  min-width: 220px;
+  background: #fff8f0;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid #fbc4d0;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
+}
+.vendor-detail-panel h4 {
+  font-family: 'Playfair Display', serif;
+  color: #b45309;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #f9a8c1;
+  padding-bottom: 0.4rem;
+}
+.vendor-detail-panel p {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #555;
+}
+.vendor-detail-panel p strong { color: #b45309; }
+
+.close-modal-btn {
+  display: block;
+  margin: 1.5rem auto 0;
+  background: linear-gradient(135deg, #d4af37, #f59e0b);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+}
+.close-modal-btn:hover { opacity: 0.85; }
+
+/* ─── Footer ─────────────────────────────────────────────────────────── */
+.dashboard-footer {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+  border-top: 1px solid rgba(251, 196, 208, 0.5);
+  margin-top: 1rem;
+  color: #b45309;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .admin-calendar-container { flex-direction: column; }
+  .customer-layout { flex-direction: column; max-height: none; }
+  .dashboard-header h2 { font-size: 1.3rem; }
+  .stat-card p { font-size: 1.9rem; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 640px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+  .header-right { text-align: center; }
+  .logout-btn { float: none; }
+}

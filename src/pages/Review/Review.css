@@ -1,0 +1,226 @@
+/* Review.css – updated without sidebar, with top bar and image cards */
+
+:root {
+    --pink: #FFD1DC;
+    --gold: #D4AF37;
+    --dark-gold: #b08d2b;
+    --text: #333333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background-color: #fffafb;
+}
+
+/* Top bar styling */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: white;
+    border-bottom: 1px solid var(--pink);
+}
+
+.back-home-btn {
+    text-decoration: none;
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background: #FFF5F8;
+    transition: all 0.3s;
+}
+
+.back-home-btn:hover {
+    background: var(--gold);
+    color: white;
+}
+
+.btn-add-review {
+    background: var(--gold);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-add-review:hover {
+    background: var(--dark-gold);
+    transform: translateY(-2px);
+}
+
+/* Main content */
+.review-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.gold-title {
+    color: var(--dark-gold);
+    font-family: 'Georgia', serif;
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Grid layout for review cards */
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.review-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+    border: 2px solid var(--pink);
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 2px solid var(--pink);
+}
+
+.review-content {
+    padding: 20px;
+}
+
+.quote-icon {
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.review-text {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.couple-name {
+    color: var(--dark-gold);
+    font-weight: bold;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Modal styling */
+.review-modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.review-modal-content {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+}
+
+.approval-note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.btn-submit-review {
+    background: var(--gold);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.3s;
+}
+
+.btn-submit-review:hover {
+    background: var(--dark-gold);
+}
+
+/* Footer */
+.footer {
+    background: #3D2C2C;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 40px;
+}
+
+.footer p {
+    color: var(--gold);
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reviews-grid {
+        grid-template-columns: 1fr;
+    }
+    .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+}

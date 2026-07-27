@@ -1,0 +1,63 @@
+.admin-login-page {
+  height: 100vh;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://i.postimg.cc/Jzqp6885/modern-pink-and-gold-luxury-background-abstract-beauty-wallpaper-vector.jpg');
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.admin-login-card h2 {
+  color: #d4a373;
+  margin-bottom: 25px;
+}
+
+.admin-login-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.admin-login-card button {
+  width: 100%;
+  padding: 12px;
+  background: #d4a373;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.admin-login-card button:hover {
+  background: #bc8a5f;
+}
+
+.back-home {
+  display: block;
+  margin-bottom: 20px;
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.error-box {
+  background: #ffe6e6;
+  color: red;
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}

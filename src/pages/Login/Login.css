@@ -1,0 +1,247 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Page Background */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: url('https://i.postimg.cc/J7scdcn1/wp2.webp')
+    no-repeat center center;
+  background-size: cover;
+}
+
+/* Login Card */
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+
+  background: #ffffff;
+
+  padding: 30px;
+
+  border-radius: 15px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* Form panel */
+.form-panel {
+  text-align: center;
+}
+
+/* Heading */
+.form-panel h2 {
+  color: #b08d2b;
+  margin-bottom: 20px;
+  font-family: Georgia, serif;
+}
+
+/* Inputs */
+form input {
+  width: 100%;
+  padding: 12px;
+
+  margin-bottom: 10px;
+
+  border-radius: 25px;
+  border: 1px solid #ddd;
+
+  outline: none;
+
+  transition: 0.3s;
+}
+
+/* Input focus */
+form input:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 5px rgba(212,175,55,0.3);
+}
+
+/* Button */
+form button {
+  width: 100%;
+  padding: 12px;
+
+  border-radius: 25px;
+  border: none;
+
+  background: #d4af37;
+
+  color: white;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  margin-top: 10px;
+
+  transition: 0.3s;
+}
+
+form button:hover {
+  background: #b08d2b;
+  transform: translateY(-2px);
+}
+
+/* Error */
+.error {
+  color: red;
+  font-size: 12px;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.error-box {
+  background: #ffe6e6;
+  color: red;
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+/* Switch text */
+.switch-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.switch-text:hover {
+  color: #d4af37;
+  text-decoration: underline;
+}
+
+/* Back to Home */
+.back-home {
+  display: block;
+  text-align: center;
+
+  margin-top: 20px;
+
+  text-decoration: none;
+
+  color: #555;
+
+  font-size: 14px;
+}
+
+.back-home:hover {
+  color: #d4af37;
+}
+
+/* Password Field */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 65px;
+}
+
+/* Show / Hide text */
+.toggle-password-text {
+  position: absolute;
+
+  right: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #d4af37;
+
+  background: white;
+
+  padding: 2px 6px;
+
+  border-radius: 5px;
+
+  user-select: none;
+}
+
+.toggle-password-text:hover {
+  color: #b08d2b;
+}
+
+/* Success Modal */
+.modal-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.5);
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+
+  padding: 25px 35px;
+
+  border-radius: 12px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.modal p {
+  margin-bottom: 20px;
+
+  font-size: 18px;
+
+  color: #333;
+}
+
+.modal-ok-btn {
+  background: #d4af37;
+
+  border: none;
+
+  padding: 10px 28px;
+
+  border-radius: 25px;
+
+  font-size: 16px;
+
+  cursor: pointer;
+}
+
+.modal-ok-btn:hover {
+  background: #b08d2b;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    margin: 20px;
+    padding: 25px;
+  }
+}

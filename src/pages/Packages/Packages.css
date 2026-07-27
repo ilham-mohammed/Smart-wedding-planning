@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500&display=swap');
+
+
+/* ── Top Bar ── */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: white;
+  border-bottom: 1px solid #F9A8C9;
+}
+
+.back-home-btn {
+  text-decoration: none;
+  color: #D4AF37;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: #FFF5F8;
+  transition: all 0.3s;
+}
+.back-home-btn:hover { background: #D4AF37; color: white; }
+
+/* ── Page ── */
+.packages-page { padding: 20px; text-align: center; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 38px; color: #3D2C2C; margin-bottom: 10px; }
+.section-subtitle { color: #8B6F6F; margin-bottom: 50px; }
+
+.packages-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+
+/* ── Package Cards ── */
+.package-card {
+  background: white;
+  border: 2px solid #F9A8C9;
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 400px;
+  box-shadow: 0 4px 20px rgba(249,168,201,0.2);
+  transition: transform 0.3s;
+  position: relative;
+}
+.package-card:hover { transform: translateY(-10px); border-color: #D4AF37; }
+.package-card.popular { border-color: #D4AF37; background: linear-gradient(135deg, #FFF8E7, #fff); }
+
+.package-badge { background: linear-gradient(135deg, #D4AF37, #F9A8C9); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; display: inline-block; margin-bottom: 15px; }
+.package-name { font-family: 'Playfair Display', serif; font-size: 24px; color: #3D2C2C; margin-bottom: 5px; }
+.guest-count { color: #888; font-size: 13px; margin-bottom: 10px; }
+.package-price { font-size: 28px; color: #D4AF37; font-weight: 700; margin-bottom: 20px; }
+.package-features { list-style: none; text-align: left; margin-bottom: 30px; }
+.package-features li { padding: 8px 0; color: #8B6F6F; font-size: 14px; border-bottom: 1px solid #FFE4EC; }
+.package-features li::before { content: "✓ "; color: #D4AF37; font-weight: bold; }
+
+.btn-primary { background: linear-gradient(135deg, #D4AF37, #C9A84C); color: white; padding: 12px 30px; border: none; border-radius: 30px; font-size: 15px; cursor: pointer; width: 100%; transition: opacity 0.2s, transform 0.2s; }
+.btn-primary:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Footer ── */
+.footer { background: #3D2C2C; color: #FFF8E7; text-align: center; padding: 40px 20px; }
+.footer p { color: #D4AF37; }
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(61, 44, 44, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-box {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  width: 460px;
+  max-width: 95vw;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(212,175,55,0.25);
+  animation: slideUp 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  border: 1.5px solid #F9A8C9;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 20px;
+  background: #FFF5F8;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  color: #8B6F6F;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: #FFD6E7; color: #3D2C2C; }
+
+.modal-header { text-align: center; margin-bottom: 24px; }
+.modal-icon { font-size: 38px; margin-bottom: 8px; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 22px; color: #3D2C2C; margin-bottom: 4px; }
+.modal-subtitle { color: #D4AF37; font-size: 14px; font-weight: 500; }
+
+.modal-cta { margin-top: 20px; }
+
+/* ════════════════════════════════════════
+   CALENDAR
+════════════════════════════════════════ */
+.calendar {
+  background: #FFF5F8;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid #FFD6E7;
+}
+
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cal-nav {
+  background: white;
+  border: 1.5px solid #F9A8C9;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  color: #D4AF37;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.cal-nav:hover { background: #D4AF37; color: white; border-color: #D4AF37; }
+
+.cal-title { font-family: 'Playfair Display', serif; font-size: 16px; color: #3D2C2C; font-weight: 600; }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day-name {
+  text-align: center;
+  font-size: 11px;
+  color: #D4AF37;
+  font-weight: 600;
+  padding: 4px 0 8px;
+  letter-spacing: 0.05em;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 13px;
+  color: #3D2C2C;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.15s, color 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-day:hover:not(:disabled) { background: #FFE4EC; }
+.cal-day.selected { background: linear-gradient(135deg, #D4AF37, #C9A84C); color: white; font-weight: 600; }
+.cal-day.past { color: #ccc; cursor: not-allowed; }
+
+.selected-date-badge {
+  margin-top: 14px;
+  text-align: center;
+  background: linear-gradient(135deg, #FFF8E7, #FFE4EC);
+  border: 1.5px dashed #D4AF37;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: #3D2C2C;
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════════
+   BOOKING SUMMARY
+════════════════════════════════════════ */
+.booking-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #FFF8E7;
+  border: 1px solid #F9D97A;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  gap: 4px 16px;
+}
+.booking-summary span { font-size: 12px; color: #8B6F6F; }
+.booking-summary strong { font-size: 14px; color: #3D2C2C; }
+
+/* ════════════════════════════════════════
+   PAYMENT OPTIONS
+════════════════════════════════════════ */
+.payment-options { display: flex; flex-direction: column; gap: 12px; }
+
+.payment-option {
+  background: white;
+  border: 2px solid #F9A8C9;
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+}
+.payment-option:hover { border-color: #D4AF37; box-shadow: 0 4px 16px rgba(212,175,55,0.2); transform: translateY(-2px); }
+.payment-option.recommended { border-color: #D4AF37; background: linear-gradient(135deg, #FFFBEF, #FFF5F8); }
+
+.pay-badge {
+  position: absolute;
+  top: -10px; right: 14px;
+  background: linear-gradient(135deg, #D4AF37, #F9A8C9);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+.pay-icon { font-size: 26px; flex-shrink: 0; }
+
+.pay-info { flex: 1; }
+.pay-label { font-size: 15px; font-weight: 600; color: #3D2C2C; margin-bottom: 2px; }
+.pay-desc { font-size: 12px; color: #8B6F6F; margin-bottom: 4px; }
+.pay-amount { font-size: 16px; font-weight: 700; color: #D4AF37; }

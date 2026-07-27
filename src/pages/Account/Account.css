@@ -1,0 +1,323 @@
+/* ────────────── COMPACT ACCOUNT PAGE (FITS WITHOUT SCROLL) ────────────── */
+.account-page {
+  --acc-primary: #e8b4b8;
+  --acc-primary-dark: #d4999e;
+  --acc-secondary: #b4d4e8;
+  --acc-card-bg: rgba(255, 255, 255, 0.96);
+  --acc-text: #2c3e2f;
+  --acc-text-light: #6b7b6e;
+  --acc-border: #ffe1de;
+  --acc-shadow: 0 15px 25px -8px rgba(0, 0, 0, 0.1);
+  --acc-radius: 1.5rem;
+}
+
+.account-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff3ef 0%, #ffeae5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Blobs – subtle */
+.acc-blob {
+  position: fixed;
+  width: 40vw;
+  height: 40vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,180,184,0.2) 0%, rgba(232,180,184,0) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+.acc-blob-tl { top: -15vh; left: -10vw; }
+.acc-blob-br { bottom: -15vh; right: -10vw; background: radial-gradient(circle, rgba(180,212,232,0.2) 0%, rgba(180,212,232,0) 70%); }
+
+/* Wrap – card container */
+.acc-wrap {
+  width: 100%;
+  max-width: 850px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Header – tighter */
+.acc-header {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.acc-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  margin-bottom: 0.2rem;
+  color: var(--acc-primary-dark);
+}
+.acc-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0;
+}
+.acc-title span {
+  background: linear-gradient(135deg, var(--acc-primary), var(--acc-secondary));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.acc-rule {
+  gap: 0.4rem;
+  margin: 0.3rem 0;
+}
+.acc-rule-line {
+  width: 35px;
+  height: 1px;
+}
+.acc-rule-dot {
+  font-size: 0.6rem;
+}
+
+/* Card – no overflow needed */
+.acc-card {
+  background: var(--acc-card-bg);
+  backdrop-filter: blur(4px);
+  border-radius: var(--acc-radius);
+  box-shadow: var(--acc-shadow);
+  overflow: hidden;
+  border: 1px solid rgba(255,225,222,0.5);
+}
+
+/* Banner – smaller avatar, less padding */
+.acc-banner {
+  background: linear-gradient(120deg, #ffe8e4, #ffe0da);
+  padding: 0.8rem 1rem 0.6rem;
+  text-align: center;
+  border-bottom: 1px solid var(--acc-border);
+}
+.acc-avatar-wrap {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 0.3rem;
+}
+.acc-avatar-img, .acc-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.acc-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: white;
+}
+.acc-avatar-btns {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  gap: 3px;
+}
+.acc-av-btn {
+  background: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.av-remove { background: #ffe0e0; color: #b00020; }
+.acc-file-input { display: none; }
+.acc-banner-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.2rem 0 0;
+}
+.acc-banner-role {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.6rem;
+  display: inline-block;
+  background: rgba(255,255,240,0.8);
+  border-radius: 20px;
+}
+
+/* Form – two columns for compactness */
+.acc-form {
+  padding: 0.8rem 1.2rem 0.6rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1rem;
+}
+.acc-section-lbl {
+  grid-column: 1 / -1;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--acc-primary-dark);
+  margin-bottom: 0;
+  border-left: 2px solid var(--acc-primary);
+  padding-left: 0.5rem;
+}
+.acc-field {
+  margin-bottom: 0;
+}
+.acc-field label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--acc-text-light);
+  margin-bottom: 0.1rem;
+  display: block;
+}
+.acc-input-wrap {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 40px;
+  border: 1px solid var(--acc-border);
+  padding: 0 0.5rem;
+}
+.acc-input-wrap:focus-within {
+  border-color: var(--acc-primary);
+  box-shadow: 0 0 0 2px rgba(232,180,184,0.2);
+}
+.acc-icon {
+  font-size: 0.9rem;
+  margin-right: 0.3rem;
+  opacity: 0.7;
+}
+.acc-input-wrap input {
+  flex: 1;
+  border: none;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  background: transparent;
+  outline: none;
+}
+.acc-input-wrap input:disabled {
+  background: #fafafa;
+  opacity: 0.8;
+}
+/* Days remaining */
+.acc-days-remaining {
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: #fef2e8;
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  color: #c26e4a;
+  border-left: 2px solid #f3b09c;
+}
+
+/* Buttons row */
+.acc-btns {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+.acc-btn {
+  flex: 1;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.acc-btn-edit {
+  background: var(--acc-primary);
+  color: #2c3e2f;
+}
+.acc-btn-edit:hover { background: #dca5a9; transform: translateY(-1px); }
+.acc-btn-save {
+  background: #2c7a4d;
+  color: white;
+}
+.acc-btn-save:hover { background: #1e5a38; }
+.acc-btn-cancel {
+  background: #f0f0f0;
+  color: #5a5a5a;
+}
+
+/* Footer */
+.acc-footer {
+  padding: 0.3rem 1.2rem 0.8rem;
+  text-align: center;
+}
+.acc-footer-line {
+  width: 50px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--acc-primary), transparent);
+  margin: 0 auto 0.4rem;
+}
+.acc-home-link {
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: var(--acc-primary-dark);
+}
+.acc-home-link:hover {
+  text-decoration: underline;
+}
+
+/* Toast – unchanged but smaller */
+.acc-toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: #2c3e2f;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: 0.2s;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+}
+.acc-toast-show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Spinner */
+.acc-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid white;
+  border-top-color: var(--acc-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive: if screen is very small, allow minimal scroll, but on most laptops it fits */
+@media (max-width: 600px) {
+  .acc-form {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+  .acc-card {
+    margin: 0;
+  }
+  .acc-banner {
+    padding: 0.6rem;
+  }
+  .acc-avatar-wrap {
+    width: 60px;
+    height: 60px;
+  }
+}
