@@ -2,12 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  doc,
+  addDoc,
+  setDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
 import { db, auth } from '../../firebase';
-import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../hooks/useAuth';
 import './VendorDashboard.css';
 
-// ── Cloudinary Upload Function ──
 const uploadImageToCloudinary = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
@@ -15,196 +24,311 @@ const uploadImageToCloudinary = async (file) => {
 
   const response = await fetch(
     'https://api.cloudinary.com/v1_1/dcjfpouji/image/upload',
-    { method: 'POST', body: formData }
+    {
+      method: 'POST',
+      body: formData,
+    }
   );
+
   const data = await response.json();
+
+  if (!response.ok || !data.secure_url) {
+    throw new Error(
+      data?.error?.message || 'Image upload failed. Check Cloudinary settings.'
+    );
+  }
+
   return data.secure_url;
+};
+
+const emptyPostForm = {
+  name: '',
+  category: 'Photography',
+  price: '',
+  desc: '',
+  phone: '',
+  image: '',
 };
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+
   const [vendorData, setVendorData] = useState(null);
+  const [vendorServices, setVendorServices] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookingsOnDate, setBookingsOnDate] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
 
-  // Post new service modal state
   const [showPostModal, setShowPostModal] = useState(false);
-  const [postForm, setPostForm] = useState({
-    name: '',
-    category: 'Photography',
-    price: '',
-    desc: '',
-    image: '',
-    phone: '',
-  });
-  const [postError, setPostError] = useState('');
-  const [postSuccess, setPostSuccess] = useState('');
-
-  // Cloudinary image upload state
+  const [editingService, setEditingService] = useState(null);
+  const [postForm, setPostForm] = useState(emptyPostForm);
+  const [customCategory, setCustomCategory] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [imageUploading, setImageUploading] = useState(false);
-  const [uploadMode, setUploadMode] = useState('upload'); // 'upload' | 'url'
+  const [postError, setPostError] = useState('');
+  const [postSuccess, setPostSuccess] = useState('');
+
+  const loadServices = async () => {
+    if (!user) return;
+
+    const snapshot = await getDocs(
+      query(collection(db, 'vendors'), where('uid', '==', user.uid))
+    );
+
+    setVendorServices(
+      snapshot.docs.map((service) => ({
+        id: service.id,
+        ...service.data(),
+      }))
+    );
+  };
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { navigate('/vendor-login'); return; }
 
-    const fetchData = async () => {
+    if (!user) {
+      navigate('/vendor-login');
+      return;
+    }
+
+    const loadDashboard = async () => {
       try {
-        const vendorRef = doc(db, 'vendors', user.uid);
-        const vendorSnap = await getDoc(vendorRef);
+        const vendorSnapshot = await getDoc(doc(db, 'vendors', user.uid));
 
-        if (!vendorSnap.exists()) {
-          alert('Vendor profile not found. Please contact support.');
-          navigate('/vendor-login');
-          return;
+        if (vendorSnapshot.exists()) {
+          setVendorData(vendorSnapshot.data());
         }
-        setVendorData(vendorSnap.data());
 
-        const bookingsRef = collection(db, 'bookings');
-        const q = query(bookingsRef, where('vendorId', '==', user.uid));
-        const querySnapshot = await getDocs(q);
-        const allBookings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setBookings(allBookings);
-      } catch (err) {
-        console.error(err);
-        alert(`Error: ${err.message}`);
+        await loadServices();
+
+        const bookingSnapshot = await getDocs(
+          query(
+            collection(db, 'bookings'),
+            where('vendorId', '==', user.uid)
+          )
+        );
+
+        setBookings(
+          bookingSnapshot.docs.map((booking) => ({
+            id: booking.id,
+            ...booking.data(),
+          }))
+        );
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadDashboard();
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (!selectedDate) return;
-    const filtered = bookings.filter(b => {
-      if (!b.weddingDate) return false;
-      return new Date(b.weddingDate).toDateString() === selectedDate.toDateString();
+    const filteredBookings = bookings.filter((booking) => {
+      if (!booking.weddingDate) return false;
+
+      return (
+        new Date(booking.weddingDate).toDateString() ===
+        selectedDate.toDateString()
+      );
     });
-    setBookingsOnDate(filtered);
-  }, [selectedDate, bookings]);
+
+    setBookingsOnDate(filteredBookings);
+  }, [bookings, selectedDate]);
 
   const handleLogout = async () => {
     await auth.signOut();
     navigate('/vendor-login');
   };
 
-  // Handle image file selection
-  const handleImageFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-    setPostForm(prev => ({ ...prev, image: '' }));
-  };
-
-  // Handle form submit with Cloudinary upload
-  const handlePostSubmit = async (e) => {
-    e.preventDefault();
-    setPostError('');
-    setPostSuccess('');
-
-    if (!user) { setPostError('You must be logged in.'); return; }
-
-    try {
-      let finalImageUrl = postForm.image;
-
-      // If user selected a file, upload to Cloudinary first
-      if (uploadMode === 'upload' && imageFile) {
-        setImageUploading(true);
-        finalImageUrl = await uploadImageToCloudinary(imageFile);
-        setImageUploading(false);
-      }
-
-      await addDoc(collection(db, 'vendors'), {
-        ...postForm,
-        image: finalImageUrl || 'https://via.placeholder.com/300?text=New+Vendor',
-        email: user.email,
-        uid: user.uid,
-        approved: false,
-        createdAt: serverTimestamp(),
-      });
-
-      setPostSuccess('✅ Your service has been submitted for admin approval!');
-
-      setTimeout(() => {
-        setShowPostModal(false);
-        setPostForm({ name: '', category: 'Photography', price: '', desc: '', image: '', phone: '' });
-        setImageFile(null);
-        setImagePreview('');
-        setPostSuccess('');
-        setUploadMode('upload');
-      }, 2000);
-
-    } catch (err) {
-      setImageUploading(false);
-      setPostError('❌ Failed to submit. Please try again.');
-    }
-  };
-
-  const getBookedDates = () =>
-    bookings.filter(b => b.weddingDate).map(b => new Date(b.weddingDate).toDateString());
-
-  const tileClassName = ({ date, view }) =>
-    view === 'month' && getBookedDates().includes(date.toDateString()) ? 'booked-date' : null;
-
-  const handleCloseModal = () => {
-    setShowPostModal(false);
-    setPostForm({ name: '', category: 'Photography', price: '', desc: '', image: '', phone: '' });
+  const openNewService = () => {
+    setEditingService(null);
+    setPostForm(emptyPostForm);
+    setCustomCategory('');
     setImageFile(null);
     setImagePreview('');
     setPostError('');
     setPostSuccess('');
-    setUploadMode('upload');
+    setShowPostModal(true);
   };
 
-  if (authLoading || loading) {
-    return (
-      <div className="v-dashboard-page loading-screen">
-        <div className="loading-ring" />
-        <p>Loading Dashboard...</p>
-      </div>
-    );
-  }
+  const openEditService = (service) => {
+    const knownCategories = [
+      'Photography',
+      'Florist',
+      'Catering',
+      'Music & DJ',
+      'Lighting',
+      'Wedding Cake',
+    ];
 
-  if (!vendorData) return null;
+    const isCustomCategory = !knownCategories.includes(service.category);
+
+    setEditingService(service);
+    setPostForm({
+      name: service.name || '',
+      category: isCustomCategory ? 'Other' : service.category,
+      price: service.price || '',
+      desc: service.desc || '',
+      phone: service.phone || '',
+      image: service.image || '',
+    });
+
+    setCustomCategory(isCustomCategory ? service.category : '');
+    setImageFile(null);
+    setImagePreview(service.image || '');
+    setPostError('');
+    setPostSuccess('');
+    setShowPostModal(true);
+  };
+
+  const handleImageFileChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleCloseModal = () => {
+    setShowPostModal(false);
+    setEditingService(null);
+    setPostForm(emptyPostForm);
+    setCustomCategory('');
+    setImageFile(null);
+    setImagePreview('');
+    setPostError('');
+    setPostSuccess('');
+  };
+
+  const handlePostSubmit = async (event) => {
+    event.preventDefault();
+    setPostError('');
+    setPostSuccess('');
+
+    try {
+      let finalImage = postForm.image;
+
+      if (imageFile) {
+        setImageUploading(true);
+        finalImage = await uploadImageToCloudinary(imageFile);
+      }
+
+      const category =
+        postForm.category === 'Other'
+          ? customCategory.trim()
+          : postForm.category;
+
+      if (!category) {
+        throw new Error('Please enter your service category.');
+      }
+
+      const serviceDetails = {
+        name: postForm.name.trim(),
+        category,
+        price: postForm.price.trim(),
+        desc: postForm.desc.trim(),
+        phone: postForm.phone.trim(),
+        image: finalImage || 'https://via.placeholder.com/300',
+        uid: user.uid,
+        email: user.email,
+      };
+
+      if (editingService) {
+  await setDoc(
+    doc(db, 'vendors', editingService.id),
+    {
+      pendingUpdate: serviceDetails,
+      updateStatus: 'pending',
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  setPostSuccess(
+    '✅ Changes saved and sent for admin approval.'
+  );
+} else {
+  await addDoc(collection(db, 'vendors'), {
+    ...serviceDetails,
+    approved: false,
+    updateStatus: 'pending',
+    createdAt: serverTimestamp(),
+  });
+
+  setPostSuccess(
+    '✅ Service submitted for admin approval.'
+  );
+}
+
+      await loadServices();
+    } catch (error) {
+      console.error(error);
+      setPostError(`❌ ${error.message}`);
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const getBookedDates = () =>
+    bookings
+      .filter((booking) => booking.weddingDate)
+      .map((booking) => new Date(booking.weddingDate).toDateString());
+
+  const tileClassName = ({ date, view }) => {
+    if (
+      view === 'month' &&
+      getBookedDates().includes(date.toDateString())
+    ) {
+      return 'booked-date';
+    }
+
+    return null;
+  };
+
+  if (loading || authLoading) {
+    return <div className="loading-screen">Loading dashboard...</div>;
+  }
 
   return (
     <div className="v-dashboard-page">
       <header className="v-dashboard-header">
         <div className="header-left">
-          <button className="go-vendors-btn" onClick={() => navigate('/vendors')}>
+          <button
+            className="go-vendors-btn"
+            onClick={() => navigate('/vendors')}
+          >
             📋 Vendors Page
           </button>
-          <button className="post-service-btn" onClick={() => setShowPostModal(true)}>
+
+          <button className="post-service-btn" onClick={openNewService}>
             + Post New Service
           </button>
         </div>
+
         <div className="header-center">
-          <h1>Welcome, {vendorData?.name}</h1>
+          <h1>Welcome, {vendorData?.name || user?.email || 'Vendor'}</h1>
         </div>
+
         <div className="header-right">
-          <button className="v-logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="v-logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </header>
 
       <section className="v-dashboard-content">
         <div className="dashboard-two-columns">
-
-          {/* Bookings Table */}
           <div className="bookings-list">
             <h2>Upcoming Bookings</h2>
+
             {bookings.length === 0 ? (
-              <div className="no-bookings-msg">
-                <span>📭</span>
-                <p>No bookings yet</p>
-              </div>
+              <p>No bookings yet.</p>
             ) : (
               <table className="v-bookings-table">
                 <thead>
@@ -216,12 +340,16 @@ const VendorDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map(b => (
-                    <tr key={b.id}>
-                      <td>{b.clientName}</td>
-                      <td>{b.clientEmail}</td>
-                      <td>{b.clientPhone}</td>
-                      <td>{b.weddingDate ? new Date(b.weddingDate).toLocaleDateString() : 'Not Set'}</td>
+                  {bookings.map((booking) => (
+                    <tr key={booking.id}>
+                      <td>{booking.clientName}</td>
+                      <td>{booking.clientEmail}</td>
+                      <td>{booking.clientPhone}</td>
+                      <td>
+                        {booking.weddingDate
+                          ? new Date(booking.weddingDate).toLocaleDateString()
+                          : 'Not Set'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -229,32 +357,87 @@ const VendorDashboard = () => {
             )}
           </div>
 
-          {/* Calendar */}
           <div className="calendar-container">
             <h2>Booking Calendar</h2>
-            <Calendar onChange={setSelectedDate} value={selectedDate} tileClassName={tileClassName} />
+            <Calendar
+              onChange={setSelectedDate}
+              value={selectedDate}
+              tileClassName={tileClassName}
+            />
+
             {bookingsOnDate.length > 0 && (
-              <div className="bookings-on-date">
-                <h4>📌 {selectedDate.toDateString()}</h4>
-                <ul>
-                  {bookingsOnDate.map(b => (
-                    <li key={b.id}>{b.clientName} — {b.clientPhone}</li>
-                  ))}
-                </ul>
-              </div>
+              <ul>
+                {bookingsOnDate.map((booking) => (
+                  <li key={booking.id}>
+                    {booking.clientName} - {booking.clientPhone}
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>
+
+        <section className="my-services">
+          <h2>My Posted Services</h2>
+
+          {vendorServices.length === 0 ? (
+            <p>No services posted yet.</p>
+          ) : (
+            vendorServices.map((service) => (
+              <div className="service-card" key={service.id}>
+                <img
+                  src={service.image || 'https://via.placeholder.com/300'}
+                  alt={service.name}
+                />
+
+                <div className="service-info">
+                  <h3>{service.name}</h3>
+                  <p>Category: {service.category}</p>
+                  <p>Price: {service.price}</p>
+                  <p>{service.desc}</p>
+
+                  <p>
+                    Status:{' '}
+                    {service.pendingUpdate ? (
+                      <span className="pending-status">
+                        Edited details awaiting approval
+                      </span>
+                    ) : service.approved ? (
+                      <span className="approved-status">Approved</span>
+                    ) : (
+                      <span className="pending-status">
+                        Pending admin approval
+                      </span>
+                    )}
+                  </p>
+
+                  <button
+                    className="edit-service-btn"
+                    onClick={() => openEditService(service)}
+                  >
+                    ✏ Edit Service
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
       </section>
 
-      {/* ── Post New Service Modal ── */}
       {showPostModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>📸 Post a New Vendor Service</h3>
+          <div
+            className="modal-content"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3>
+              {editingService ? '✏ Edit Service' : '📸 Post New Service'}
+            </h3>
 
             {postError && <div className="error-box">{postError}</div>}
-            {postSuccess && <div className="success-box">{postSuccess}</div>}
+            {postSuccess && (
+              <div className="success-box">{postSuccess}</div>
+            )}
 
             <form onSubmit={handlePostSubmit}>
               <input
@@ -262,122 +445,100 @@ const VendorDashboard = () => {
                 placeholder="Business Name"
                 required
                 value={postForm.name}
-                onChange={e => setPostForm({ ...postForm, name: e.target.value })}
+                onChange={(event) =>
+                  setPostForm({ ...postForm, name: event.target.value })
+                }
               />
 
               <select
                 value={postForm.category}
-                onChange={e => setPostForm({ ...postForm, category: e.target.value })}
+                onChange={(event) =>
+                  setPostForm({ ...postForm, category: event.target.value })
+                }
               >
                 <option value="Photography">Photography</option>
                 <option value="Florist">Florist</option>
-                <option value="Music & DJ">Music & DJ</option>
                 <option value="Catering">Catering</option>
+                <option value="Music & DJ">Music & DJ</option>
                 <option value="Lighting">Lighting</option>
                 <option value="Wedding Cake">Wedding Cake</option>
                 <option value="Other">Other</option>
               </select>
 
+              {postForm.category === 'Other' && (
+                <input
+                  type="text"
+                  placeholder="Enter your category"
+                  required
+                  value={customCategory}
+                  onChange={(event) =>
+                    setCustomCategory(event.target.value)
+                  }
+                />
+              )}
+
               <input
                 type="text"
-                placeholder="Price (e.g., From Rs. 20,000)"
+                placeholder="Price"
+                required
                 value={postForm.price}
-                onChange={e => setPostForm({ ...postForm, price: e.target.value })}
+                onChange={(event) =>
+                  setPostForm({ ...postForm, price: event.target.value })
+                }
               />
 
               <textarea
                 placeholder="Description"
-                rows="3"
+                required
                 value={postForm.desc}
-                onChange={e => setPostForm({ ...postForm, desc: e.target.value })}
+                onChange={(event) =>
+                  setPostForm({ ...postForm, desc: event.target.value })
+                }
               />
 
-              {/* ── Image Upload Section ── */}
-              <div className="image-upload-section">
-                <label className="image-section-label">📷 Service Image</label>
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  className="image-preview"
+                  alt="Preview"
+                />
+              )}
 
-                {/* Toggle between upload and URL */}
-                <div className="upload-toggle">
-                  <button
-                    type="button"
-                    className={`toggle-btn ${uploadMode === 'upload' ? 'active' : ''}`}
-                    onClick={() => { setUploadMode('upload'); setPostForm(p => ({ ...p, image: '' })); }}
-                  >
-                    📁 Upload Image
-                  </button>
-                  <button
-                    type="button"
-                    className={`toggle-btn ${uploadMode === 'url' ? 'active' : ''}`}
-                    onClick={() => { setUploadMode('url'); setImageFile(null); setImagePreview(''); }}
-                  >
-                    🔗 Paste URL
-                  </button>
-                </div>
-
-                {/* Upload from device */}
-                {uploadMode === 'upload' && (
-                  <div className="file-upload-area">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id="imageUpload"
-                      className="file-input-hidden"
-                      onChange={handleImageFileChange}
-                    />
-                    <label htmlFor="imageUpload" className="file-upload-label">
-                      {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="image-preview" />
-                      ) : (
-                        <div className="upload-placeholder">
-                          <span>🖼️</span>
-                          <p>Click to select image from your device</p>
-                          <small>JPG, PNG, WEBP supported</small>
-                        </div>
-                      )}
-                    </label>
-                    {imagePreview && (
-                      <button
-                        type="button"
-                        className="remove-image-btn"
-                        onClick={() => { setImageFile(null); setImagePreview(''); }}
-                      >
-                        ✕ Remove Image
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Paste URL */}
-                {uploadMode === 'url' && (
-                  <input
-                    type="url"
-                    placeholder="Paste image URL (e.g. https://...)"
-                    value={postForm.image}
-                    onChange={e => setPostForm({ ...postForm, image: e.target.value })}
-                  />
-                )}
-              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageFileChange}
+              />
 
               <input
                 type="tel"
                 placeholder="Phone Number"
                 required
                 value={postForm.phone}
-                onChange={e => setPostForm({ ...postForm, phone: e.target.value })}
+                onChange={(event) =>
+                  setPostForm({ ...postForm, phone: event.target.value })
+                }
               />
 
-              <div className="modal-buttons">
-                <button type="submit" disabled={imageUploading} className="submit-btn">
-                  {imageUploading ? (
-                    <span className="btn-spinner">Uploading...</span>
-                  ) : (
-                    '✓ Submit for Approval'
-                  )}
-                </button>
-                <button type="button" onClick={handleCloseModal} className="cancel-btn">
-                  Cancel
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={imageUploading}
+              >
+                {imageUploading
+                  ? 'Uploading...'
+                  : editingService
+                    ? 'Send Changes for Approval'
+                    : 'Submit for Approval'}
+              </button>
+
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
             </form>
           </div>
         </div>

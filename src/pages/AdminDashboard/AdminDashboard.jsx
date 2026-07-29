@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { db } from '../../firebase';
-import { collection, query, where, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc,  orderBy, deleteDoc} from "firebase/firestore";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AdminDashboard.css';
+
 
 // Static vendor data
 const staticVendors = [
@@ -24,6 +25,7 @@ const staticVendors = [
 ];
 
 // Static supplies with item details
+
 const staticSupplies = [
   { id: 's1', name: 'Floral Centerpieces', qty: 30 },
   { id: 's2', name: 'Table Linens', qty: 50 },
@@ -63,21 +65,7 @@ const staticInventory = [
   { id: 'i15', name: 'Floral Wall Panel' },
 ];
 
-// Static customers
-const staticCustomers = [
-  { id: 'c1', name: 'Amara & Dinesh', phone: '+94 77 100 2001', weddingDate: '2026-04-07', package: 'Full Package', venue: 'Grand Ballroom, Colombo' },
-  { id: 'c2', name: 'Sithara & Kasun', phone: '+94 71 200 3002', weddingDate: '2026-04-13', package: 'Full Package', venue: 'Cinnamon Grand, Colombo' },
-  { id: 'c3', name: 'Nisha & Roshan', phone: '+94 76 300 4003', weddingDate: '2026-06-21', package: 'Standard Package', venue: 'Hotel Galadari, Colombo' },
-];
 
-// Static weddings
-const staticWeddings = [
-  { id: 'w1', couple: 'Amara & Dinesh', date: '2026-04-07', venue: 'Grand Ballroom' },
-  { id: 'w2', couple: 'Sithara & Kasun', date: '2026-04-13', venue: 'Cinnamon Grand' },
-  { id: 'w3', couple: 'Nisha & Roshan', date: '2026-06-21', venue: 'Hotel Galadari' },
-  { id: 'w4', couple: 'Priya & Thilak', date: '2026-07-05', venue: 'Mount Lavinia Hotel' },
-  { id: 'w5', couple: 'Chamari & Nuwan', date: '2026-08-12', venue: 'Kingsbury Hotel' },
-];
 
 const AdminDashboard = () => {
   useEffect(() => {
@@ -85,7 +73,10 @@ const AdminDashboard = () => {
     if (!isAdmin) window.location.href = '/admin-login';
   }, []);
 
+  const [inventoryCount, setInventoryCount] = useState(0);
+  const [suppliesCount, setSuppliesCount] = useState(0);
   const [pendingVendors, setPendingVendors] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [approvedVendors, setApprovedVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingReviews, setPendingReviews] = useState([]);
@@ -93,6 +84,8 @@ const AdminDashboard = () => {
   const [allBookings, setAllBookings] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [bookingsOnDate, setBookingsOnDate] = useState([]);
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState([]);
 
   // Modals
   const [showVendorModal, setShowVendorModal] = useState(false);
@@ -121,37 +114,99 @@ const AdminDashboard = () => {
   const vendorCategoryData = getCategoryCounts();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const vendorsRef = collection(db, 'vendors');
-        const pendingSnap = await getDocs(query(vendorsRef, where('approved', '==', false)));
-        const approvedSnap = await getDocs(query(vendorsRef, where('approved', '==', true)));
-        setPendingVendors(pendingSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-        setApprovedVendors(approvedSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+  const fetchData = async () => {
+    try {
+      // Vendors
+      const vendorsRef = collection(db, "vendors");
 
-        const reviewsRef = collection(db, 'reviews');
-        const pendingReviewsSnap = await getDocs(query(reviewsRef, where('approved', '==', false)));
-        const approvedReviewsSnap = await getDocs(query(reviewsRef, where('approved', '==', true)));
-        setPendingReviews(pendingReviewsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-        setApprovedReviews(approvedReviewsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const pendingSnap = await getDocs(
+        query(vendorsRef, where("approved", "==", false))
+      );
 
-        const bookingsSnap = await getDocs(collection(db, 'bookings'));
-        setAllBookings(bookingsSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast.error('Failed to fetch dashboard data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+      const approvedSnap = await getDocs(
+        query(vendorsRef, where("approved", "==", true))
+      );
+
+      setPendingVendors(
+        pendingSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+      setApprovedVendors(
+        approvedSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+        // Inventory
+         const inventorySnap = await getDocs(collection(db, "inventory"));
+         setInventoryCount(inventorySnap.size);
+
+        // Supplies
+        const suppliesSnap = await getDocs(collection(db, "supplies"));
+       setSuppliesCount(suppliesSnap.size); 
+
+      // Reviews
+      const reviewsRef = collection(db, "reviews");
+
+      const pendingReviewsSnap = await getDocs(
+        query(reviewsRef, where("approved", "==", false))
+      );
+
+      const approvedReviewsSnap = await getDocs(
+        query(reviewsRef, where("approved", "==", true))
+      );
+
+      setPendingReviews(
+        pendingReviewsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+      setApprovedReviews(
+        approvedReviewsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+      // Bookings
+      const bookingsSnap = await getDocs(collection(db, "bookings"));
+
+      setAllBookings(
+        bookingsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+      // Customers
+      const customerSnap = await getDocs(collection(db, "clients"));
+
+      setCustomers(
+        customerSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast.error("Failed to fetch dashboard data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   // Combine static + firestore bookings for calendar
-  const allCombinedBookings = [
-    ...staticCustomers.map(c => ({ id: c.id, clientName: c.name, clientPhone: c.phone, weddingDate: c.weddingDate, vendorName: c.package, venue: c.venue })),
-    ...allBookings,
-  ];
+  const allCombinedBookings = allBookings;
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -169,7 +224,8 @@ const AdminDashboard = () => {
       setPendingVendors(prev => prev.filter(v => v.id !== vendorId));
       if (vendorToMove) setApprovedVendors(prev => [...prev, { ...vendorToMove, approved: true }]);
       toast.success('Vendor approved!');
-    } catch (error) { toast.error('Failed to approve vendor.'); }
+    } catch (error) {  console.error(error);
+  toast.error(error.message); }
   };
 
   const revokeVendor = async (vendorId) => {
@@ -225,6 +281,30 @@ const AdminDashboard = () => {
     }
   };
 
+  useEffect(() => {
+  const fetchMessages = async () => {
+    try {
+      const q = query(
+        collection(db, "contactMessages"),
+        orderBy("createdAt", "desc")
+      );
+
+      const snapshot = await getDocs(q);
+
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setMessages(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchMessages();
+}, []);
+
   const getBookedDates = () =>
     allCombinedBookings.filter(b => b.weddingDate).map(b => new Date(b.weddingDate).toDateString());
 
@@ -252,25 +332,33 @@ const AdminDashboard = () => {
         <div className="stat-card clickable" onClick={() => setShowWeddingsModal(true)}>
           <div className="stat-icon">💍</div>
           <h3>Weddings</h3>
-          <p>{staticWeddings.length}</p>
+          <p>{allBookings.length}</p>
           <span className="click-hint">Click to view</span>
         </div>
-        <div className="stat-card clickable" onClick={() => setShowInventoryModal(true)}>
-          <div className="stat-icon">📦</div>
-          <h3>Inventory Items</h3>
-          <p>{staticInventory.length}</p>
-          <span className="click-hint">Click to view</span>
-        </div>
-        <div className="stat-card clickable" onClick={() => setShowSuppliesModal(true)}>
-          <div className="stat-icon">🛒</div>
-          <h3>Supplies</h3>
-          <p>{staticSupplies.length}</p>
-          <span className="click-hint">Click to view</span>
-        </div>
+        <div
+  className="stat-card clickable"
+  onClick={() => navigate("/inventory?tab=inventory")}
+>
+  <div className="stat-icon">📦</div>
+  <h3>Inventory Items</h3>
+  <p>{inventoryCount}</p>
+  <span className="click-hint">Click to view</span>
+</div>
+
+       <div
+  className="stat-card clickable"
+  onClick={() => navigate("/inventory?tab=supplies")}
+>
+  <div className="stat-icon">🛒</div>
+  <h3>Supplies</h3>
+  <p>{suppliesCount}</p>
+  <span className="click-hint">Click to view</span>
+</div>
+
         <div className="stat-card clickable" onClick={() => setShowCustomerModal(true)}>
           <div className="stat-icon">👥</div>
           <h3>Customers</h3>
-          <p>{staticCustomers.length}</p>
+          <p>{customers.length}</p>
           <span className="click-hint">Click to view</span>
         </div>
         <div className="stat-card clickable" onClick={() => setShowVendorModal(true)}>
@@ -442,23 +530,47 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Messages */}
+    <div className="messages-section">
+  <h2>Contact Messages</h2>
+
+  {messages.length === 0 ? (
+    <p>No messages found.</p>
+  ) : (
+    messages.map((msg) => (
+      <div key={msg.id} className="message-card">
+        <h4>{msg.name}</h4>
+        <p><strong>Email:</strong> {msg.email}</p>
+        <p>{msg.message}</p>
+
+        <small>
+          {msg.createdAt?.toDate().toLocaleString()}
+        </small>
+      </div>
+    ))
+  )}
+</div>
+     
       {/* ── MODALS ── */}
 
       {/* Weddings Modal */}
       {showWeddingsModal && (
         <div className="modal-overlay" onClick={() => setShowWeddingsModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3>💍 Upcoming Weddings ({staticWeddings.length})</h3>
+            <h3>💍 Upcoming Weddings ({allBookings.length})</h3>
             <table className="admin-table">
-              <thead><tr><th>#</th><th>Couple</th><th>Date</th><th>Venue</th></tr></thead>
+              <thead><tr><th>#</th><th>Client Name</th><th>Date</th><th>Vendors & Package</th> <th>Payment Type</th><th>Amount Paid</th><th>Balance</th></tr></thead>
               <tbody>
-                {staticWeddings.map((w, i) => (
-                  <tr key={w.id}>
-                    <td>{i + 1}</td>
-                    <td>{w.couple}</td>
-                    <td>{new Date(w.date).toDateString()}</td>
-                    <td>{w.venue}</td>
-                  </tr>
+                {allBookings.map((w, i) => (
+                 <tr key={w.id}>
+                <td>{i + 1}</td>
+                 <td>{w.clientName}</td>
+                  <td>{w.weddingDate}</td>
+                    <td>{w.vendorName}</td>
+                    <td>{w.paymentType}</td>
+                     <td>Rs. {Number(w.amountPaid).toLocaleString("en-LK")}</td>
+                     <td>Rs. {(Number(w.totalPrice) - Number(w.amountPaid)).toLocaleString("en-LK")}</td>
+                      </tr>
                 ))}
               </tbody>
             </table>
@@ -507,12 +619,12 @@ const AdminDashboard = () => {
       {showCustomerModal && (
         <div className="modal-overlay" onClick={() => { setShowCustomerModal(false); setSelectedCustomer(null); }}>
           <div className="modal-content wide-modal" onClick={e => e.stopPropagation()}>
-            <h3>👥 Customers ({staticCustomers.length})</h3>
+            <h3>👥 Customers ({customers.length})</h3>
             <div className="customer-layout">
               <table className="admin-table customer-table">
                 <thead><tr><th>Name</th><th>Phone</th><th>Details</th></tr></thead>
                 <tbody>
-                  {staticCustomers.map(c => (
+                  {customers.map(c => (
                     <tr key={c.id} onClick={() => setSelectedCustomer(c)} className={`clickable-row ${selectedCustomer?.id === c.id ? 'selected-row' : ''}`}>
                       <td>{c.name}</td>
                       <td>{c.phone}</td>
@@ -576,5 +688,7 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
+
 
 export default AdminDashboard;

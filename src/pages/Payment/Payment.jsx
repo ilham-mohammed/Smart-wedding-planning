@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Payment.css';
+import { db } from "../../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const formatPrice = (n) =>
   'Rs. ' + Number(n).toLocaleString('en-LK');
@@ -76,11 +78,49 @@ export default function Payment() {
     return e;
   };
 
-  const handleSubmit = () => {
-    const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
-    setStep('success');
-  };
+  const handleSubmit = async () => {
+  const e = validate();
+
+  if (Object.keys(e).length) {
+    setErrors(e);
+    return;
+  }
+
+  try {
+
+    await addDoc(collection(db, "bookings"), {
+
+      clientName: form.fullName,
+      clientPhone: form.phone,
+
+      weddingDate,
+
+      vendorName: packageName,
+
+      paymentType,
+
+      totalPrice,
+
+      amountPaid: amountDue,
+
+      email: form.email,
+
+      nic: form.nic,
+
+      createdAt: serverTimestamp()
+
+    });
+
+    setStep("success");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Booking not saved.");
+
+  }
+};
 
   const payInfo = PAYMENT_LABELS[paymentType] || PAYMENT_LABELS.later;
 

@@ -398,6 +398,27 @@
   font-size: 10px;
 }
 
+.messages-section {
+  margin-top: 30px;
+}
+
+.message-card {
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #ff69b4;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.message-card h4 {
+  margin: 0 0 8px;
+}
+
+.message-card small {
+  color: #777;
+}
+
 /* Bookings side panel */
 .bookings-on-date {
   flex: 1;
@@ -486,8 +507,8 @@
 .customer-layout {
   display: flex;
   gap: 1.5rem;
-  max-height: 55vh;
-  overflow: hidden;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .customer-table { flex: 2; overflow-y: auto; }
 

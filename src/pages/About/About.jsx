@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './About.css';
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db }  from "../../firebase";
 
 function About() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -11,17 +13,32 @@ function About() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    // Simulate sending (replace with real API/Firestore call if needed)
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-      setForm({ name: '', email: '', message: '' });
-    }, 1200);
-  };
+  try {
+    await addDoc(collection(db, "contactMessages"), {
+      name: form.name,
+      email: form.email,
+      message: form.message,
+      createdAt: serverTimestamp(),
+    });
+
+    setSubmitted(true);
+    setForm({
+      name: "",
+      email: "",
+      message: "",
+    });
+
+  } catch (error) {
+    console.error("Error sending message:", error);
+    alert("Failed to send message. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDismiss = () => setSubmitted(false);
 

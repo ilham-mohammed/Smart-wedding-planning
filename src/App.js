@@ -14,6 +14,7 @@ import { auth } from './firebase';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import AdminLogin from './pages/AdminLogin/AdminLogin.jsx';
 import Payment from './pages/Payment/Payment.jsx';
+import Inventory from './pages/Inventory/Inventory.jsx';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/vendor-dashboard" element={ <PrivateRoute> <VendorDashboard /> </PrivateRoute> } />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/inventory" element={<Inventory />} />
       </Routes>
     </Router>
   );

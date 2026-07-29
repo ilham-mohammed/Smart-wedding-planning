@@ -4,6 +4,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import './AdminLogin.css'; // Import the CSS file here
+import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');

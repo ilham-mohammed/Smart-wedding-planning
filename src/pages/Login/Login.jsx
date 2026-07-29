@@ -7,7 +7,9 @@ import './Login.css';
 import { auth, db } from '../../firebase';
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut
 } from 'firebase/auth';
 
 import {
@@ -34,7 +36,11 @@ const Login = () => {
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [successModal, setSuccessModal] = useState({ show: false, message: '' });
+  const [successModal, setSuccessModal] = useState({
+  show: false,
+  message: '',
+  type: ''
+});
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -56,22 +62,55 @@ const Login = () => {
   };
 
   const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateLogin()) return;
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, loginData.email, loginData.password);
-      const user = userCredential.user;
-      const clientRef = doc(db, 'clients', user.uid);
-      const snap = await getDoc(clientRef);
-      if (!snap.exists()) {
-        await setDoc(clientRef, { uid: user.uid, email: user.email, createdAt: new Date() });
-      }
-      setSuccessModal({ show: true, message: 'Login successful! 🎉' });
-    } catch (error) {
-      setLoginErrors({ general: 'Invalid email or password' });
-    }
-  };
+  e.preventDefault();
 
+  if (!validateLogin()) return;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      loginData.email,
+      loginData.password
+    );
+
+    const user = userCredential.user;
+
+    // Refresh user information from Firebase
+    await user.reload();
+
+    if (!user.emailVerified) {
+      await signOut(auth);
+
+      setLoginErrors({
+        general: "Your email is not verified. Please verify your email before logging in."
+      });
+
+      return;
+    }
+
+    const clientRef = doc(db, "clients", user.uid);
+    const snap = await getDoc(clientRef);
+
+    if (!snap.exists()) {
+      await setDoc(clientRef, {
+        uid: user.uid,
+        email: user.email,
+        createdAt: new Date()
+      });
+    }
+
+    setSuccessModal({
+  show: true,
+  message: "Login successful! 🎉",
+  type: "login"
+});
+
+  } catch (error) {
+    setLoginErrors({
+      general: "Invalid email or password."
+    });
+  }
+};
   // ── REGISTER ──
   const handleRegChange = (e) => {
     setRegData({ ...regData, [e.target.name]: e.target.value });
@@ -89,32 +128,81 @@ const Login = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateRegister()) return;
+ const handleRegisterSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validateRegister()) return;
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      regData.email,
+      regData.password
+    );
+
+    const user = userCredential.user;
+
+    // Send verification email
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, regData.email, regData.password);
-      const user = userCredential.user;
-      await setDoc(doc(db, 'clients', user.uid), {
-        uid: user.uid,
-        name: regData.fullName,
-        phone: regData.phone,
-        weddingDate: regData.weddingDate,
-        email: regData.email,
-        createdAt: new Date()
-      });
-      setSuccessModal({ show: true, message: 'Registration successful! 🎉' });
+      await sendEmailVerification(user);
+      console.log("Verification email sent successfully.");
     } catch (error) {
-      setRegErrors({ general: 'Registration failed. Email may already be in use.' });
+      console.error("Verification Error:", error.code, error.message);
+      alert(error.message);
     }
-  };
+
+    // Save user data
+    await setDoc(doc(db, "clients", user.uid), {
+      uid: user.uid,
+      name: regData.fullName,
+      phone: regData.phone,
+      weddingDate: regData.weddingDate,
+      email: regData.email,
+      createdAt: new Date()
+    });
+
+    // Sign out until email is verified
+    await signOut(auth);
+
+    setSuccessModal({
+  show: true,
+  message: "Registration successful! Please check your email to verify your account.",
+  type: "register"
+});
+
+  } catch (error) {
+    console.error(error);
+    setRegErrors({
+      general: error.message
+    });
+  }
+};
 
   // ── MODAL OK ──
   const handleModalOk = () => {
-    setSuccessModal({ show: false, message: '' });
-    navigate('/', { replace: true });
-  };
+  const type = successModal.type;
 
+  setSuccessModal({
+    show: false,
+    message: '',
+    type: ''
+  });
+
+  if (type === "login") {
+    navigate("/", { replace: true });
+  } else {
+    setIsLogin(true);
+
+    setRegData({
+      fullName: '',
+      phone: '',
+      weddingDate: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    });
+  }
+};
   // ── UI ──
   return (
     <div className="auth-page">
