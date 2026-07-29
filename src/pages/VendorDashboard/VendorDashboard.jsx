@@ -2,17 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
-  doc,
-  addDoc,
-  setDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc, addDoc, setDoc, serverTimestamp,} from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import { useAuth } from '../../hooks/useAuth';
 import './VendorDashboard.css';
@@ -107,7 +97,7 @@ const VendorDashboard = () => {
         const bookingSnapshot = await getDocs(
           query(
             collection(db, 'bookings'),
-            where('vendorId', '==', user.uid)
+            where('vendorUid', '==', user.uid)
           )
         );
 

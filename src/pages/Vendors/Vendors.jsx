@@ -255,15 +255,16 @@ function Vendors() {
 
   const handlePay = (paymentType, date, amountDue, total) => {
     navigate('/payment', {
-      state: {
-        packageName: `${cart.length} Vendor${cart.length>1?'s':''} Selected`,
-        weddingDate: date.toDateString(),
-        totalPrice: total,
-        paymentType,
-        amountDue,
-        vendors: cart.map(v => v.name),
-      }
-    });
+  state: {
+    packageName: `${cart.length} Vendor${cart.length > 1 ? 's' : ''} Selected`,
+    weddingDate: date.toDateString(),
+    totalPrice: total,
+    paymentType,
+    amountDue,
+
+    vendors: cart   // <-- send complete vendor objects
+  }
+});
   };
 
   if (loading) return (

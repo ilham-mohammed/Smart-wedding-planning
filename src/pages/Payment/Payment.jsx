@@ -24,6 +24,7 @@ export default function Payment() {
     totalPrice   = 0,
     paymentType  = 'later',
     amountDue    = 0,
+     vendors = []
   } = booking;
 
   const [step, setStep] = useState('form'); // 'form' | 'success'
@@ -88,29 +89,39 @@ export default function Payment() {
 
   try {
 
-    await addDoc(collection(db, "bookings"), {
+    for (const vendor of vendors) {
 
-      clientName: form.fullName,
-      clientPhone: form.phone,
+  await addDoc(collection(db, "bookings"), {
 
-      weddingDate,
+    vendorId: vendor.id,
+    vendorUid: vendor.uid,
+    vendorName: vendor.name,
 
-      vendorName: packageName,
+    clientName: form.fullName,
+    clientPhone: form.phone,
+    clientEmail: form.email,
+    clientNIC: form.nic,
 
-      paymentType,
+    weddingDate,
 
-      totalPrice,
+    paymentType,
 
-      amountPaid: amountDue,
+    totalPrice: vendor.priceNum,
 
-      email: form.email,
+    amountPaid:
+      paymentType === "advance"
+        ? Math.round(vendor.priceNum * 0.1)
+        : paymentType === "full"
+        ? vendor.priceNum
+        : 0,
 
-      nic: form.nic,
+    status: "Confirmed",
 
-      createdAt: serverTimestamp()
+    createdAt: serverTimestamp()
 
-    });
+  });
 
+}
     setStep("success");
 
   } catch (error) {
