@@ -3,10 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { db } from '../../firebase';
-import { collection, getDocs, query, where, doc, updateDoc,  orderBy, deleteDoc} from "firebase/firestore";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+import { collection, getDocs, query, where, doc, updateDoc,  orderBy, deleteDoc, onSnapshot, addDoc, serverTimestamp} from "firebase/firestore";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, } from 'recharts';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AdminDashboard.css';
@@ -86,6 +84,10 @@ const AdminDashboard = () => {
   const [bookingsOnDate, setBookingsOnDate] = useState([]);
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
+  const [chatUsers, setChatUsers] = useState([]);
+const [selectedChat, setSelectedChat] = useState(null);
+const [chatMessages, setChatMessages] = useState([]);
+const [reply, setReply] = useState("");
 
   // Modals
   const [showVendorModal, setShowVendorModal] = useState(false);
@@ -305,6 +307,86 @@ const AdminDashboard = () => {
   fetchMessages();
 }, []);
 
+//customer Message
+
+useEffect(() => {
+
+  const q = query(
+    collection(db, "chats"),
+    orderBy("updatedAt", "desc")
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    setChatUsers(
+      snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+    );
+  });
+
+  return unsubscribe;
+
+}, []);
+
+//Load selected user's messages
+
+useEffect(() => {
+
+  if (!selectedChat) return;
+
+  const q = query(
+    collection(db, "chats", selectedChat.username, "messages"),
+    orderBy("timestamp", "asc")
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+
+    setChatMessages(
+      snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+    );
+
+  });
+
+  return unsubscribe;
+
+}, [selectedChat]);
+
+//Send admin reply
+
+const sendReply = async () => {
+
+  if (!reply.trim()) return;
+
+  await addDoc(
+    collection(
+      db,
+      "chats",
+      selectedChat.username,
+      "messages"
+    ),
+    {
+      sender: "admin",
+      text: reply,
+      timestamp: serverTimestamp()
+    }
+  );
+
+  await updateDoc(
+    doc(db, "chats", selectedChat.username),
+    {
+      lastMessage: reply,
+      updatedAt: serverTimestamp()
+    }
+  );
+
+  setReply("");
+
+};
+
   const getBookedDates = () =>
     allCombinedBookings.filter(b => b.weddingDate).map(b => new Date(b.weddingDate).toDateString());
 
@@ -324,6 +406,13 @@ const AdminDashboard = () => {
       <header className="dashboard-header">
         <div className="header-left"><Link to="/" className="back-home">← Back to Home</Link></div>
         <div className="header-center"><h2>✦ Admin Dashboard ✦</h2></div>
+        <button
+    className="report-btn"
+    onClick={() => navigate("/reports")}
+    
+>
+    📊 Reports
+</button>
         <div className="header-right"><button onClick={handleLogout} className="logout-btn">Logout</button></div>
       </header>
 
@@ -501,6 +590,65 @@ const AdminDashboard = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Message section */}
+      <div className="chat-admin-section">
+    <h2>💬 Customer Live Chat</h2>
+    <div className="chat-admin">
+        <div className="chat-users">
+            {chatUsers.map(user => (
+                <div
+                    key={user.id}
+                    onClick={() => setSelectedChat(user)}
+                    className="chat-user"
+                >
+                    <strong>{user.username}</strong>
+                    <br />
+                    <small>{user.lastMessage}</small>
+                </div>
+            ))}
+        </div>
+        <div className="chat-window">
+
+            {selectedChat ? (
+                <>
+                    <h3>{selectedChat.username}</h3>
+
+                    <div className="messages">
+
+                        {chatMessages.map(msg => (
+
+                            <div
+                                key={msg.id}
+                                className={
+                                    msg.sender === "admin"
+                                        ? "admin-msg"
+                                        : "user-msg"
+                                }
+                            >
+                                {msg.text}
+                            </div>
+
+                        ))}
+                    </div>
+                    <div className="reply-box">
+                        <input
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            placeholder="Reply..."
+                        />
+                        <button onClick={sendReply}>
+                            Send
+                        </button>
+
+                    </div>
+                </>
+            ) : (
+                <p>Select a customer.</p>
+            )}
+        </div>
+    </div>
+</div>
 
       {/* Calendar */}
       <div className="calendar-section">

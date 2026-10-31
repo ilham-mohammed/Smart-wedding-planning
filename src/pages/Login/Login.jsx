@@ -90,14 +90,23 @@ const Login = () => {
 
     const clientRef = doc(db, "clients", user.uid);
     const snap = await getDoc(clientRef);
+  
 
-    if (!snap.exists()) {
-      await setDoc(clientRef, {
-        uid: user.uid,
-        email: user.email,
-        createdAt: new Date()
-      });
-    }
+   if (!snap.exists()) {
+  await setDoc(clientRef, {
+    uid: user.uid,
+    email: user.email,
+    createdAt: new Date()
+  });
+} else {
+  const client = snap.data();
+
+  // Update chat username
+  localStorage.setItem(
+    "swp_chat_username",
+    client.name || user.email
+  );
+}
 
     setSuccessModal({
   show: true,

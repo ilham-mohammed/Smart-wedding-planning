@@ -491,3 +491,492 @@
   .cart-bar { bottom: 16px; width: calc(100% - 32px); border-radius: 20px; padding: 12px 16px; gap: 12px; }
   .cart-drawer { width: 100%; }
 }
+
+/* ==========================================
+   STAR RATING
+========================================== */
+
+.vendor-rating{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:0 16px 10px;
+    font-size:13px;
+}
+
+.vendor-rating-none{
+    color:#999;
+}
+
+.stars{
+    color:#D4AF37;
+    letter-spacing:2px;
+    font-size:15px;
+}
+
+.rating-num{
+    font-weight:600;
+    color:#3D2C2C;
+}
+
+.review-count{
+    color:#8B6F6F;
+    font-size:12px;
+}
+
+
+/* ==========================================
+   CARD BUTTONS
+========================================== */
+
+.vendor-card-actions{
+    display:flex;
+    gap:10px;
+    padding:0 16px 16px;
+}
+
+.vendor-card-actions button{
+    flex:1;
+}
+
+.btn-add{
+    margin:0;
+}
+
+.btn-chat{
+    background:#FFF5F8;
+    color:#D4AF37;
+    border:2px solid #F9A8C9;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:14px;
+    font-family:'Poppins',sans-serif;
+    font-weight:500;
+    transition:.25s;
+}
+
+.btn-chat:hover{
+    background:#D4AF37;
+    color:white;
+}
+
+
+/* ==========================================
+   CHAT MODAL
+========================================== */
+
+.chat-modal-box{
+    width:520px;
+    max-width:95vw;
+    height:650px;
+    max-height:90vh;
+    background:white;
+    border-radius:22px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+
+.chat-modal-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:18px 22px;
+    border-bottom:1px solid #eee;
+    position:relative;
+}
+
+.chat-vendor-avatar{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.chat-vendor-meta{
+    flex:1;
+}
+
+.chat-vendor-name{
+    font-size:18px;
+    font-weight:600;
+    color:#3D2C2C;
+}
+
+.chat-vendor-category{
+    font-size:13px;
+    color:#D4AF37;
+}
+
+.chat-messages{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+    background:#FFF9FC;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.chat-loading,
+.chat-empty{
+    margin:auto;
+    color:#888;
+    text-align:center;
+}
+
+.chat-bubble{
+    max-width:75%;
+    padding:10px 14px;
+    border-radius:18px;
+    word-wrap:break-word;
+    line-height:1.5;
+    animation:fadeIn .25s;
+}
+
+.chat-bubble-user{
+    align-self:flex-end;
+    background:linear-gradient(135deg,#D4AF37,#C9A84C);
+    color:white;
+    border-bottom-right-radius:6px;
+}
+
+.chat-bubble-vendor{
+    align-self:flex-start;
+    background:white;
+    border:1px solid #F9A8C9;
+    color:#3D2C2C;
+    border-bottom-left-radius:6px;
+}
+
+.chat-bubble-text{
+    font-size:14px;
+}
+
+.chat-input-row{
+    display:flex;
+    gap:10px;
+    padding:16px;
+    border-top:1px solid #eee;
+    background:white;
+}
+
+.chat-input{
+    flex:1;
+    border:2px solid #F9A8C9;
+    border-radius:30px;
+    padding:12px 18px;
+    font-size:14px;
+    outline:none;
+    font-family:'Poppins',sans-serif;
+}
+
+.chat-input:focus{
+    border-color:#D4AF37;
+}
+
+.chat-send-btn{
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(135deg,#D4AF37,#C9A84C);
+    color:white;
+    padding:0 22px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.25s;
+}
+
+.chat-send-btn:hover:not(:disabled){
+    opacity:.9;
+}
+
+.chat-send-btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:768px){
+
+.chat-modal-box{
+    width:100%;
+    height:100%;
+    max-height:100vh;
+    border-radius:0;
+}
+
+.vendor-card-actions{
+    flex-direction:column;
+}
+
+}
+.vendor-swiper{
+    width:100%;
+    height:220px;
+}
+
+.vendor-swiper .swiper-slide{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.vendor-image{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.vendor-swiper .swiper-button-next,
+.vendor-swiper .swiper-button-prev{
+    color:white;
+}
+
+.vendor-swiper .swiper-pagination-bullet-active{
+    background:#D4AF37;
+}
+
+/* ===============================
+   Vendor Details Modal
+================================ */
+
+.vendor-details-modal{
+    position:relative;
+    width:900px;
+    max-width:95%;
+    max-height:90vh;
+    overflow-y:auto;
+
+    background:#fff;
+    border-radius:20px;
+    padding:25px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+
+    animation:popup .3s ease;
+}
+
+@keyframes popup{
+    from{
+        opacity:0;
+        transform:scale(.9);
+    }
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+.vendor-details-image{
+    width:100%;
+    height:450px;
+    object-fit:cover;
+    border-radius:15px;
+}
+
+.vendor-details-modal h2{
+    margin-top:20px;
+    color:#3D2C2C;
+}
+
+.vendor-details-modal p{
+    margin:10px 0;
+    line-height:1.6;
+}
+
+.vendor-details-modal table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+.vendor-details-modal th,
+.vendor-details-modal td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:left;
+}
+
+.vendor-details-modal th{
+    background:#D4AF37;
+    color:white;
+}
+
+/* ── Interactive Rating (clickable stars) ── */
+.interactive-rating {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.interactive-rating span {
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.interactive-rating span:hover {
+  transform: scale(1.15);
+}
+
+.interactive-rating span:active {
+  transform: scale(0.9);
+}
+
+/* ── Rating Section inside Vendor Details Modal ── */
+.rating-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.rating-section h3 {
+  margin-bottom: 12px;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.rating-summary .rating-count {
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* ── User rating form ── */
+.user-rating-form {
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+
+.user-rating-form p {
+  margin: 0 0 6px 0;
+  font-weight: 500;
+}
+
+.rating-comment-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  resize: vertical;
+  margin: 8px 0 12px 0;
+  font-family: inherit;
+  background: white;
+  transition: border 0.2s;
+}
+
+.rating-comment-input:focus {
+  border-color: #8a6dff;
+  outline: none;
+}
+
+.btn-submit-rating {
+  background: #8a6dff;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.btn-submit-rating:hover:not(:disabled) {
+  background: #7a5fef;
+}
+
+.btn-submit-rating:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Reviews list ── */
+.reviews-list {
+  margin-top: 16px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.reviews-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.review-item {
+  background: #fafafa;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  border-left: 3px solid #8a6dff;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.review-user {
+  font-weight: 600;
+  color: #333;
+}
+
+.review-rating {
+  color: #f5b342;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+}
+
+.review-comment {
+  margin: 6px 0 0 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.no-reviews {
+  color: #999;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+/* ── Responsive tweaks ── */
+@media (max-width: 600px) {
+  .interactive-rating span {
+    font-size: 24px;
+  }
+
+  .user-rating-form {
+    padding: 12px;
+  }
+
+  .review-item {
+    padding: 10px 12px;
+  }
+
+  .rating-comment-input {
+    min-height: 50px;
+  }
+}

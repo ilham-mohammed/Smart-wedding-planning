@@ -73,10 +73,10 @@ const VendorLogin = () => {
           price: "Contact for Pricing",
           desc: "New vendor registered via portal",
           image: "https://via.placeholder.com/300?text=New+Vendor",
-          approved: false,
+          approved: true,
         });
 
-        setSuccessModal({ show: true, message: "Registration successful! 🎉 Please wait for admin approval." });
+        setSuccessModal({ show: true, message: "Registration successful! 🎉" });
       }
     } catch (err) {
       setError(getFriendlyError(err.code));

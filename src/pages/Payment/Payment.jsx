@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Payment.css';
 import { db } from "../../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, } from "firebase/firestore";
 
 const formatPrice = (n) =>
   'Rs. ' + Number(n).toLocaleString('en-LK');
@@ -89,12 +89,26 @@ export default function Payment() {
 
   try {
 
+
     for (const vendor of vendors) {
+
+      await addDoc(collection(db, "weddingBookings"), {
+  weddingDate,
+  packageName,
+  clientName: form.fullName,
+  clientEmail: form.email,
+  clientPhone: form.phone,
+  paymentType,
+  totalPrice,
+  amountPaid: amountDue,
+  status: "Confirmed",
+  createdAt: serverTimestamp()
+});
 
   await addDoc(collection(db, "bookings"), {
 
     vendorId: vendor.id,
-    vendorUid: vendor.uid,
+    vendorUid: vendor.uid || null,
     vendorName: vendor.name,
 
     clientName: form.fullName,
@@ -125,12 +139,9 @@ export default function Payment() {
     setStep("success");
 
   } catch (error) {
-
-    console.log(error);
-
-    alert("Booking not saved.");
-
-  }
+    console.error("Firestore Error:", error);
+    alert(error.message);
+}
 };
 
   const payInfo = PAYMENT_LABELS[paymentType] || PAYMENT_LABELS.later;
