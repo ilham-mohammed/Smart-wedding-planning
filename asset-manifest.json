@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Smart-wedding-planning/static/css/main.048d6be1.css",
-    "main.js": "/Smart-wedding-planning/static/js/main.f7969fbc.js",
+    "main.css": "/Smart-wedding-planning/static/css/main.d06adae7.css",
+    "main.js": "/Smart-wedding-planning/static/js/main.77a5f2b4.js",
     "static/js/453.c5183cba.chunk.js": "/Smart-wedding-planning/static/js/453.c5183cba.chunk.js",
     "index.html": "/Smart-wedding-planning/index.html",
-    "main.048d6be1.css.map": "/Smart-wedding-planning/static/css/main.048d6be1.css.map",
-    "main.f7969fbc.js.map": "/Smart-wedding-planning/static/js/main.f7969fbc.js.map",
+    "main.d06adae7.css.map": "/Smart-wedding-planning/static/css/main.d06adae7.css.map",
+    "main.77a5f2b4.js.map": "/Smart-wedding-planning/static/js/main.77a5f2b4.js.map",
     "453.c5183cba.chunk.js.map": "/Smart-wedding-planning/static/js/453.c5183cba.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.048d6be1.css",
-    "static/js/main.f7969fbc.js"
+    "static/css/main.d06adae7.css",
+    "static/js/main.77a5f2b4.js"
   ]
 }
